@@ -21,7 +21,8 @@ COPY --from=builder --chown=${USER_UID}:${USER_GID} /app/build/libs/*.jar app.ja
 ENV APP_PORT=8080
 EXPOSE ${APP_PORT}
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \ CMD wget --no-verbose --tries=1 --spider http://localhost:${APP_PORT}/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${APP_PORT}/actuator/health || exit 1
 
 ENTRYPOINT ["java"]
 CMD ["-jar", "app.jar"]

@@ -17,6 +17,7 @@ val junitJupiterVersion = "5.9.1"
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
+        vendor.set(JvmVendorSpec.ADOPTIUM)
 	}
 }
 
@@ -43,6 +44,8 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	runtimeOnly("org.postgresql:postgresql:42.6.0")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
 	compileOnly("org.projectlombok:lombok")
 
