@@ -1,4 +1,6 @@
 /target
+.env
 
 # We don't wanna be leaking keys now
 *.key
+*.pem
