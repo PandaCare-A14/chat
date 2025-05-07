@@ -12,7 +12,6 @@ mod tests {
     async fn test_create_room() {
         let mock_data = RoomRequest {
             target_id: Uuid::new(),
-            persistent: true,
         };
 
         let app =
