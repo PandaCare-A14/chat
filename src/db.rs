@@ -6,7 +6,7 @@ const MAX_RETRIES: i32 = 10;
 pub async fn get_mongodb_client() -> Option<Client> {
     dotenvy::dotenv().ok()?;
 
-    let database_url = env::var("DATABASE_URL").ok()?;
+    let database_url = env::var("DATABASE_URI").ok()?;
 
     for i in 1..=MAX_RETRIES {
         match Client::with_uri_str(&database_url).await.ok() {
@@ -18,6 +18,6 @@ pub async fn get_mongodb_client() -> Option<Client> {
         }
     }
 
-    // Catch when all attemps have been exhausted
+    // Catch when all attempts have been exhausted
     None
 }

@@ -40,7 +40,7 @@ pub fn get_access_token_from_auth_header(req: HttpRequest) -> Option<String> {
                 None
             }
         })
-        .and_then(|header| Some(header.to_string()));
+        .map(|header| header.to_string());
 
     token
 }

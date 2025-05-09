@@ -2,6 +2,7 @@ use actix_web::{
     HttpRequest, HttpResponse,
     web::{self},
 };
+use env_logger::Logger;
 use mongodb::{
     Client,
     bson::{Uuid, datetime},
@@ -11,7 +12,7 @@ use crate::{
     chat_history::models::Message,
     chat_room::models::ChatRoom,
     errors::AuthorizationError,
-    utils::{get_access_token_from_auth_header, get_user_details},
+    utils::{User, get_access_token_from_auth_header, get_user_details},
 };
 
 use super::models::RoomRequest;
@@ -29,12 +30,14 @@ pub async fn create_chat_room(
     let created_time = datetime::DateTime::now();
     let chat_history = Vec::<Message>::new();
 
+    println!("i got here");
+
     let token = match get_access_token_from_auth_header(req) {
         Some(token) => token,
         None => return Err(AuthorizationError::TokenNotFound),
     };
 
-    let user = get_user_details(&token).map_err(|_err| AuthorizationError::TokenInvalid)?;
+    let user: User = get_user_details(&token).map_err(|_err| AuthorizationError::TokenInvalid)?;
 
     let whitelist = vec![room_request.into_inner().target_id, user.user_id()];
 

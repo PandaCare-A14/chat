@@ -18,6 +18,7 @@ mod tests {
             test::init_service(App::new().service(chat_room::services::create_chat_room)).await;
         let test_request = TestRequest::post().set_json(mock_data).to_request();
         let response = test::call_service(&app, test_request).await;
+
         assert!(response.status().is_success());
     }
 }
