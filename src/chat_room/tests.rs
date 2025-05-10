@@ -1,24 +1,20 @@
-#[cfg(test)]
-mod tests {
-    use actix_web::{
-        App,
-        test::{self, TestRequest},
+use actix_web::{
+    App,
+    test::{self, TestRequest},
+};
+use mongodb::bson::Uuid;
+
+use crate::chat_room::{self, models::RoomRequest};
+
+#[actix_web::test]
+async fn test_create_room() {
+    let mock_data = RoomRequest {
+        target_id: Uuid::new(),
     };
-    use mongodb::bson::Uuid;
 
-    use crate::chat_room::{self, models::RoomRequest};
+    let app = test::init_service(App::new().service(chat_room::services::create_chat_room)).await;
+    let test_request = TestRequest::post().set_json(mock_data).to_request();
+    let response = test::call_service(&app, test_request).await;
 
-    #[actix_web::test]
-    async fn test_create_room() {
-        let mock_data = RoomRequest {
-            target_id: Uuid::new(),
-        };
-
-        let app =
-            test::init_service(App::new().service(chat_room::services::create_chat_room)).await;
-        let test_request = TestRequest::post().set_json(mock_data).to_request();
-        let response = test::call_service(&app, test_request).await;
-
-        assert!(response.status().is_success());
-    }
+    assert!(response.status().is_success());
 }

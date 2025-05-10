@@ -1,5 +1,3 @@
-use std::fs;
-
 use actix_web::{HttpRequest, http::header};
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation, decode};
 use mongodb::bson::Uuid;
@@ -16,14 +14,12 @@ impl User {
     }
 }
 
-pub fn get_user_details(token: &str) -> Result<User, jsonwebtoken::errors::Error> {
-    let key_file =
-        fs::read("ec-public.pem").map_err(|_err| jsonwebtoken::errors::ErrorKind::InvalidToken)?;
-
-    let public_key = DecodingKey::from_ec_pem(&key_file)?;
-
+pub fn get_user_details(
+    token: &str,
+    verifying_key: &DecodingKey,
+) -> Result<User, jsonwebtoken::errors::Error> {
     let token_data: TokenData<User> =
-        decode(token, &public_key, &Validation::new(Algorithm::ES256))?;
+        decode(token, verifying_key, &Validation::new(Algorithm::ES256))?;
 
     Ok(token_data.claims)
 }

@@ -2,7 +2,7 @@ use actix_web::{
     HttpRequest, HttpResponse,
     web::{self},
 };
-use env_logger::Logger;
+use jsonwebtoken::DecodingKey;
 use mongodb::{
     Client,
     bson::{Uuid, datetime},
@@ -24,20 +24,20 @@ const COLL_NAME: &str = "chat_history";
 pub async fn create_chat_room(
     req: HttpRequest,
     room_request: web::Json<RoomRequest>,
+    verifying_key: web::Data<DecodingKey>,
     db_client: web::Data<Client>,
 ) -> Result<HttpResponse, impl actix_web::error::ResponseError> {
     let room_id = Uuid::new();
     let created_time = datetime::DateTime::now();
     let chat_history = Vec::<Message>::new();
 
-    println!("i got here");
-
     let token = match get_access_token_from_auth_header(req) {
         Some(token) => token,
         None => return Err(AuthorizationError::TokenNotFound),
     };
 
-    let user: User = get_user_details(&token).map_err(|_err| AuthorizationError::TokenInvalid)?;
+    let user: User = get_user_details(&token, &verifying_key.into_inner())
+        .map_err(|_err| AuthorizationError::TokenInvalid)?;
 
     let whitelist = vec![room_request.into_inner().target_id, user.user_id()];
 
