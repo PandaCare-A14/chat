@@ -1,5 +1,8 @@
-use mongodb::bson::{DateTime, oid::ObjectId};
+use mongodb::bson::{DateTime, Uuid, oid::ObjectId};
 use serde::{Deserialize, Serialize};
+
+pub type RoomId = Uuid;
+pub type ConnId = Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct Message {
@@ -7,4 +10,9 @@ pub struct Message {
     time_sent: DateTime,
     username: String,
     content: String,
+}
+
+pub enum Command {
+    Join,
+    Message { message: Message },
 }

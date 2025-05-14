@@ -1,5 +1,5 @@
 use actix_web::{
-    HttpRequest, HttpResponse,
+    HttpRequest, HttpResponse, Responder,
     web::{self},
 };
 use jsonwebtoken::DecodingKey;
@@ -9,8 +9,8 @@ use mongodb::{
 };
 
 use crate::{
-    chat_history::models::Message,
     chat_room::models::ChatRoom,
+    chat_server::types::Message,
     errors::AuthorizationError,
     utils::{User, get_access_token_from_auth_header, get_user_details},
 };
@@ -18,7 +18,7 @@ use crate::{
 use super::models::RoomRequest;
 
 const DB_NAME: &str = "public";
-const COLL_NAME: &str = "chat_history";
+const COLL_NAME: &str = "chat_rooms";
 
 #[actix_web::post("/")]
 pub async fn create_chat_room(
@@ -26,9 +26,9 @@ pub async fn create_chat_room(
     room_request: web::Json<RoomRequest>,
     verifying_key: web::Data<DecodingKey>,
     db_client: web::Data<Client>,
-) -> Result<HttpResponse, impl actix_web::error::ResponseError> {
+) -> impl Responder {
     let room_id = Uuid::new();
-    let created_time = datetime::DateTime::now();
+    let created_at = datetime::DateTime::now();
     let chat_history = Vec::<Message>::new();
 
     let token = match get_access_token_from_auth_header(req) {
@@ -37,14 +37,14 @@ pub async fn create_chat_room(
     };
 
     let user: User = get_user_details(&token, &verifying_key.into_inner())
-        .map_err(|_err| AuthorizationError::TokenInvalid)?;
+        .map_err(|err| AuthorizationError::TokenInvalid(err.to_string()))?;
 
     let whitelist = vec![room_request.into_inner().target_id, user.user_id()];
 
     let chat_room = ChatRoom {
         whitelist,
         room_id,
-        created_time,
+        created_at,
         chat_history,
     };
 

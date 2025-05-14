@@ -1,4 +1,4 @@
-use crate::chat_history::models::Message;
+use crate::chat_server::types::Message;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +11,6 @@ pub struct RoomRequest {
 pub struct ChatRoom {
     pub whitelist: Vec<Uuid>,
     pub room_id: Uuid,
-    pub created_time: DateTime,
+    pub created_at: DateTime,
     pub chat_history: Vec<Message>,
 }

@@ -2,15 +2,23 @@ use actix_web::{
     HttpResponse, ResponseError,
     http::{StatusCode, header::ContentType},
 };
-use derive_more::derive::{Display, Error};
+use std::fmt::{self, Display};
 
-#[derive(Error, Display, Debug)]
+#[derive(Debug)]
 pub enum AuthorizationError {
-    #[display("no access token found")]
     TokenNotFound,
+    TokenInvalid(String),
+}
 
-    #[display("access token is invalid")]
-    TokenInvalid,
+impl std::error::Error for AuthorizationError {}
+
+impl Display for AuthorizationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::TokenNotFound => write!(f, "Token not found in request header"),
+            Self::TokenInvalid(s) => write!(f, "Token is invalid: {}", s),
+        }
+    }
 }
 
 impl ResponseError for AuthorizationError {
@@ -23,7 +31,7 @@ impl ResponseError for AuthorizationError {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match *self {
             Self::TokenNotFound => StatusCode::UNAUTHORIZED,
-            Self::TokenInvalid => StatusCode::UNAUTHORIZED,
+            Self::TokenInvalid(_) => StatusCode::UNAUTHORIZED,
         }
     }
 }

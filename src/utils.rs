@@ -19,7 +19,7 @@ pub fn get_user_details(
     verifying_key: &DecodingKey,
 ) -> Result<User, jsonwebtoken::errors::Error> {
     let token_data: TokenData<User> =
-        decode(token, verifying_key, &Validation::new(Algorithm::ES256))?;
+        decode(token, verifying_key, &Validation::new(Algorithm::HS256))?;
 
     Ok(token_data.claims)
 }

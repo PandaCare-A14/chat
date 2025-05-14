@@ -1,5 +1,5 @@
-mod chat_history;
 mod chat_room;
+mod chat_server;
 mod db;
 mod errors;
 mod utils;
@@ -23,10 +23,10 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
 
-    let key_file = fs::read("ec-public.pem")?;
+    let key_file = fs::read_to_string("private.key")?;
 
-    let verifying_key = DecodingKey::from_ec_pem(&key_file)
-        .map_err(|_err| std::io::Error::new(ErrorKind::InvalidData, "Key file is invalid"))?;
+    let verifying_key = DecodingKey::from_base64_secret(&key_file)
+        .map_err(|err| std::io::Error::new(ErrorKind::Other, err))?;
 
     let db_client: Client = match get_mongodb_client().await {
         Some(db_client) => db_client,
